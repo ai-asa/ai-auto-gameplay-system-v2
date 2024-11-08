@@ -1,0 +1,365 @@
+{
+  "game_title": "ポケモンスタジアム2",
+  "general_controls": {
+    "basic_navigation": {
+      "proceed": "Aボタン",
+      "back": "Bボタン",
+      "move_selection": "十字キー",
+      "command_select": "Cキー",
+      "special_functions": ["Rボタン", "Lボタン"]
+    }
+  },
+  "scenes": [
+    {
+      "id": 1,
+      "name": "オープニングムービー",
+      "description": "ゲーム開始時のムービー。サイドンなどの複数のポケモンが順番に表示される",
+      "next_scene": "タイトル画面",
+      "controls": {
+        "proceed": "Aボタン"
+      }
+    },
+    {
+      "id": 2,
+      "name": "タイトル画面",
+      "description": "「ポケモンスタジアム2」のロゴとPUSH START表示がある画面",
+      "next_scene": "カートリッジチェック画面",
+      "visual_elements": {
+        "title": {
+          "position": "正面上",
+          "text": "ポケモンスタジアム2"
+        },
+        "start_prompt": {
+          "text": "PUSH START",
+          "state": "点滅"
+        }
+      },
+      "controls": {
+        "proceed": "Aボタン"
+      }
+    },
+    {
+      "id": 3,
+      "name": "カートリッジチェック画面",
+      "description": "64のセーブ用カートリッジ接続確認画面",
+      "previous_scene": "タイトル画面",
+      "next_scene": "ゲームモード選択画面",
+      "visual_elements": {
+        "title": {
+          "position": "左上",
+          "text": "カートリッジチェック"
+        },
+        "hardware_display": {
+          "position": "正面上",
+          "content": "任天堂64ハードウェアとコントローラ接続図"
+        },
+        "warning": {
+          "position": "下部",
+          "text": "GBカートリッジ、64GBパック、コントローラのぬきさしは、でんげんをきってからおこなってください"
+        },
+        "prompt": {
+          "position": "右上",
+          "text": "OK?"
+        }
+      },
+      "controls": {
+        "proceed": "Aボタン",
+        "back": "Bボタン"
+      },
+      "notes": "Switchエミュレータでプレイ時は関係のない画面"
+    },
+    {
+      "id": 4,
+      "name": "ゲームモード選択画面",
+      "description": "メインのゲームモード選択画面",
+      "previous_scene": "カートリッジチェック画面",
+      "visual_elements": {
+        "title": {
+          "position": "上部",
+          "text": "えらんでください"
+        }
+      },
+      "selectable_options": {
+        "center": {
+          "name": "ポケモンスタジアム",
+          "description": "スタジアムは　ここにあります。バトルかいじょう、ポケモンけんきゅうじょ、ミニゲームなど　いろいろ　あります。",
+          "next_scene": "ストーリーモード画面"
+        },
+        "right": {
+          "name": "イベントバトル",
+          "description": "コントローラ１と２に　セットされた　カートリッジの　手持ちのポケモンどうしのバトルです",
+          "notes": "カートリッジを接続できないため選択不可"
+        },
+        "left": {
+          "name": "とにかくバトルがしたい！",
+          "description": "とにかく1びょうでも　はやくバトルをやってみたい　というひとは　ここで　あそんでみて　ください",
+          "next_scene": "バトルモード選択画面"
+        },
+        "bottom": {
+          "name": "オプション"
+        }
+      },
+      "controls": {
+        "move": "十字キー",
+        "select": "Aボタン",
+        "back": "Bボタン"
+      }
+    },
+    {
+      "id": 5,
+      "name": "バトルモード選択画面",
+      "description": "「とにかくバトルがしたい！」モードでのバトル形式選択画面",
+      "previous_scene": "ゲームモード選択画面",
+      "next_scene": "アイキャッチ",
+      "visual_elements": {
+        "base_layout": {
+          "description": "ゲームモード選択画面と同じ背景",
+          "elements": {
+            "left": {
+              "name": "とにかくバトルがしたい！",
+              "state": "アクティブ（選択中）",
+              "description": "とにかく1びょうでも　はやくバトルをやってみたい　というひとは　ここで　あそんでみて　ください"
+            }
+          }
+        },
+        "battle_mode_overlay": {
+          "description": "「とにかくバトルがしたい！」の選択肢の上に重なって表示される選択画面",
+          "position": "とにかくバトルがしたい！の選択肢の上",
+          "options": [
+            {
+              "name": "ひとりでバトル",
+              "description": "コンピューターとの対戦",
+              "initial_state": "選択状態"
+            },
+            {
+              "name": "ふたりでバトル",
+              "description": "1Pと2Pでの対戦",
+              "notes": "2Pがいない場合はプレイ不可"
+            }
+          ]
+        }
+      },
+      "controls": {
+        "move": "十字キー上下（バトルモードの選択を切り替え）",
+        "select": "Aボタン（選択したバトルモードで開始）",
+        "back": "Bボタン（ゲームモード選択画面に戻る）"
+      }
+    },
+    {
+      "id": 6,
+      "name": "アイキャッチ",
+      "description": "バトル開始前の「VS」表示画面",
+      "previous_scene": "バトルモード選択画面",
+      "next_scene": "ポケモン選択画面",
+      "visual_elements": {
+        "vs_text": {
+          "position": "画面上",
+          "size": "大きく"
+        },
+        "pokemon_display": "それぞれのトレーナーのポケモン表示"
+      },
+      "notes": "操作不要の演出画面"
+    },
+    {
+      "id": 7,
+      "name": "ポケモン選択画面",
+      "description": "バトルに使用するポケモンを選択する画面",
+      "previous_scene": "アイキャッチ",
+      "next_scene": "バトル画面",
+      "visual_elements": {
+        "player_info": {
+          "1p_name": "ブルー",
+          "2p_name": "レッド",
+          "pokemon_display": "2行3列で6体ずつ",
+          "selection_slots": "黒い穴3つ（選択後モンスターボールに変化）"
+        }
+      },
+      "controls": {
+        "pokemon_selection": {
+          "row1_col1": "Bボタン",
+          "row1_col2": "C左キー",
+          "row1_col3": "C上キー",
+          "row2_col1": "Aボタン",
+          "row2_col2": "C下キー",
+          "row2_col3": "C右キー"
+        },
+        "reset": "Lボタン",
+        "confirm": {
+          "move": "十字キー",
+          "select": "Aボタン"
+        }
+      }
+    },
+    {
+      "id": 8,
+      "name": "バトル画面",
+      "description": "ポケモンの技や召喚のアニメーション表示画面",
+      "previous_scene": ["ポケモン選択画面", "バトル選択画面"],
+      "next_scene": "バトル選択画面",
+      "visual_elements": {
+        "animations": ["ポケモン召喚", "技使用"],
+        "text_info": ["ポケモン名", "使用技", "効果"]
+      },
+      "notes": "操作不要のアニメーション画面"
+    },
+    {
+      "id": 9,
+      "name": "バトル選択画面",
+      "description": "バトル中の行動選択画面",
+      "previous_scene": "バトル画面",
+      "next_scene": "バトル選択確認画面",
+      "visual_elements": {
+        "status_display": {
+          "player": {
+            "position": "左上",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          },
+          "opponent": {
+            "position": "右下",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          }
+        }
+      },
+      "selectable_options": {
+        "fight": {
+          "name": "たたかう",
+          "control": "Aボタン",
+          "next_scene": {
+            "immediate": "バトル選択確認画面",
+            "type": "技選択モード"
+          }
+        },
+        "pokemon": {
+          "name": "ポケモン",
+          "control": "Bボタン",
+          "next_scene": {
+            "immediate": "バトル選択確認画面",
+            "type": "ポケモン交代モード"
+          }
+        },
+        "run": {
+          "name": "にげる",
+          "control": "STARTボタン",
+          "next_scene": "降参選択画面"
+        }
+      }
+    },
+    {
+      "id": 10,
+      "name": "バトル選択確認画面",
+      "description": "技選択またはポケモン交代の前の中継確認画面",
+      "previous_scene": "バトル選択画面",
+      "next_scene": ["技選択画面", "ポケモン交代画面"],
+      "visual_elements": {
+        "status_display": {
+          "player": {
+            "position": "左上",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          },
+          "opponent": {
+            "position": "右下",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          }
+        },
+        "options": {
+          "back": {
+            "text": "もどる",
+            "control": "Lボタン",
+            "action": "バトル選択画面に戻る"
+          },
+          "confirm": {
+            "text": "かくにん",
+            "control": "Rボタンホールド",
+            "action": "選択モードに応じた画面を表示"
+          }
+        }
+      },
+      "mode_transition": {
+        "fight_mode": {
+          "condition": "「たたかう」から遷移",
+          "next_scene": "技選択画面",
+          "trigger": "Rボタンホールド"
+        },
+        "pokemon_mode": {
+          "condition": "「ポケモン」から遷移",
+          "next_scene": "ポケモン交代画面",
+          "trigger": "Rボタンホールド"
+        }
+      }
+    },
+    {
+      "id": 11,
+      "name": "技選択画面",
+      "description": "ポケモンの技を選択する画面（Rボタンホールド中のみ表示）",
+      "previous_scene": "バトル選択確認画面",
+      "next_scene": "バトル画面",
+      "visual_elements": {
+        "status_display": {
+          "player": {
+            "position": "左上",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          },
+          "opponent": {
+            "position": "右下",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          }
+        },
+        "move_layout": {
+          "trigger": "Rボタンホールド",
+          "display": "4つの技が上下左右の位置に表示",
+          "info_per_move": ["技名", "タイプ", "PP現在値/最大値"]
+        }
+      },
+      "button_actions": {
+        "Cキー上": "上位置の技を即座に選択・使用してバトル画面へ",
+        "Cキー左": "左位置の技を即座に選択・使用してバトル画面へ",
+        "Cキー右": "右位置の技を即座に選択・使用してバトル画面へ",
+        "Cキー下": "下位置の技を即座に選択・使用してバトル画面へ"
+      }
+    },
+    {
+      "id": 12,
+      "name": "ポケモン交代画面",
+      "description": "バトルに出すポケモンを交代する画面（Rボタンホールド中のみ表示）",
+      "previous_scene": "バトル選択確認画面",
+      "next_scene": ["バトル画面", "警告表示"],
+      "visual_elements": {
+        "status_display": {
+          "player": {
+            "position": "左上",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          },
+          "opponent": {
+            "position": "右下",
+            "info": ["ポケモン名", "状態", "レベル", "HP", "HP現在値/最大値"]
+          }
+        },
+        "pokemon_layout": {
+          "trigger": "Rボタンホールド",
+          "display": "3匹のポケモンが縦に配置",
+          "info_per_pokemon": ["レベル", "名前", "状態", "HP現在値/最大値"]
+        }
+      },
+      "button_actions": {
+        "Cキー上": "上位置のポケモンを即座に選択して結果判定へ",
+        "Cキー右": "中央位置のポケモンを即座に選択して結果判定へ",
+        "Cキー下": "下位置のポケモンを即座に選択して結果判定へ"
+      },
+      "selection_results": {
+        "valid_case": "選択可能なポケモンの場合、即座にバトル画面へ",
+        "invalid_cases": [
+          {
+            "case": "既に場に出ているポケモンの場合",
+            "warning": "「もうポケモンは出ています」と表示",
+            "resolution": "Aボタンを押して警告を消すまで他の操作不可"
+          },
+          {
+            "case": "ひんし状態のポケモンの場合",
+            "warning": "「たたかう　きりょくが　ない」と表示",
+            "resolution": "Aボタンを押して警告を消すまで他の操作不可"
+          }
+        ]
+      }
+    }
+  ]
+}

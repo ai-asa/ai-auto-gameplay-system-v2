@@ -33,7 +33,13 @@ class GameplayConfiguration:
             type=str,
             help='Target objective for the gameplay session'
         )
-        
+
+        parser.add_argument(
+            '--game-info',
+            type=str,
+            help='Information to play game'
+        )
+
         parser.add_argument(
             '--config',
             type=str,
@@ -57,18 +63,22 @@ class GameplayConfiguration:
         
         # Get values with priority: CLI args > config file > interactive input
         game_title = (args.game_title or 
-                     config.get('Gameplay', 'game_title', fallback=None) or 
+                     config.get('GAMEPLAY', 'game_title', fallback=None) or 
                      self._get_interactive_input('Enter game title: '))
         
         save_name = (args.save_name or 
-                    config.get('Gameplay', 'save_name', fallback=None) or 
+                    config.get('GAMEPLAY', 'save_name', fallback=None) or 
                     self._get_interactive_input('Enter save name: '))
         
         play_target = (args.play_target or 
-                      config.get('Gameplay', 'play_target', fallback=None) or 
+                      config.get('GAMEPLAY', 'play_target', fallback=None) or 
                       self._get_interactive_input('Enter play target: '))
         
-        return game_title, save_name, play_target
+        game_info = (args.game_info or 
+                      config.get('GAMEPLAY', 'game_info', fallback=None) or 
+                      self._get_interactive_input('Enter game information: '))
+        
+        return game_title, save_name, play_target, game_info
     
     def _get_interactive_input(self, prompt: str) -> str:
         return input(prompt)
@@ -104,6 +114,10 @@ def copy_required_files() -> None:
     
     for source, dest in files_to_copy:
         copy_file_to_documents(source, dest)
+    
+    source_dir = "config//gamedata"
+    dest_dir = "config//gamedata"
+    copy_directory_to_documents(source_dir, dest_dir)
 
 def copy_file_to_documents(source_relative_path: str, dest_relative_path: str) -> None:
     source_path = resource_path(source_relative_path)
@@ -119,6 +133,30 @@ def copy_file_to_documents(source_relative_path: str, dest_relative_path: str) -
             print(f"Copied {source_path} to {dest_path}")
         except Exception as e:
             print(f"Error copying {source_path} to {dest_path}: {e}")
+
+def copy_directory_to_documents(source_relative_dir: str, dest_relative_dir: str) -> None:
+    """Copy all files from a source directory to a destination directory in the documents directory."""
+    source_dir_path = resource_path(source_relative_dir)
+    dest_dir_path = os.path.join(get_base_documents_dir(), dest_relative_dir)
+    
+    if not os.path.exists(dest_dir_path):
+        os.makedirs(dest_dir_path)
+        print(f"Created directory: {dest_dir_path}")
+    
+    if os.path.exists(source_dir_path):
+        for item in os.listdir(source_dir_path):
+            source_item_path = os.path.join(source_dir_path, item)
+            dest_item_path = os.path.join(dest_dir_path, item)
+            
+            if os.path.isfile(source_item_path):
+                if not os.path.exists(dest_item_path):
+                    try:
+                        shutil.copyfile(source_item_path, dest_item_path)
+                        print(f"Copied {source_item_path} to {dest_item_path}")
+                    except Exception as e:
+                        print(f"Error copying {source_item_path} to {dest_item_path}: {e}")
+    else:
+        print(f"Source directory {source_dir_path} does not exist.")
     
 def main():
     # try:
@@ -128,12 +166,12 @@ def main():
     
     # Get configuration
     config = GameplayConfiguration()
-    game_title, save_name, play_target = config.get_configuration()
+    game_title, save_name, play_target, game_info = config.get_configuration()
     
     # Initialize game system
     from game_play_system import GamePlaySystem
     base_dir = get_base_documents_dir()
-    gs = GamePlaySystem(base_dir, game_title, save_name, play_target)
+    gs = GamePlaySystem(base_dir, game_title, save_name, play_target, game_info)
     
     # Set up multiprocessing
     queue_advice = multiprocessing.Queue()

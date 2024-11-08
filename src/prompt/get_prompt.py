@@ -8,7 +8,7 @@ class GetPrompt:
         config.read(settings_path, encoding='utf-8')
         self.source_name = config.get('SYSTEM', 'source_name',fallback='Switch画面')
 
-    def get_gameplay_prompt(self,game_title,play_target,play_log,advice,ss_info):
+    def get_gameplay_prompt(self,game_title,play_target,play_log,advice,ss_info,last_operate):
         instruct_info = f"""あなたはゲームプレイAIです。
 現在のゲーム画面の情報から操作を判断し、プレイ目標を達成するために必要なプレイの判断とその根拠、コントローラーの操作情報を出力します。
 """
@@ -24,6 +24,12 @@ AIのこれまでのゲームプレイの情報です：
 <play_log>
 {play_log}
 </play_log>
+"""
+        operate_info = f"""
+AIが最後に実行した操作コマンドです：
+<last_operate>
+{last_operate}
+</last_operate>
 """
         advice_info = f"""
 ゲームプレイについて以下のような助言を受けています：
@@ -55,6 +61,8 @@ AIのこれまでのゲームプレイの情報です：
 
 注意事項をよく確認し、これまでのゲームプレイの情報、助言、画面の情報などを加味して判断を行い、所定の形式で出力してください。
 """
+        if last_operate:
+            log_info = log_info + operate_info
         if play_log:
             play_info = play_info + log_info
         if advice:
@@ -62,3 +70,76 @@ AIのこれまでのゲームプレイの情報です：
         else:
             prompt = instruct_info+play_info+res_info
         return prompt
+
+    def ss_prompt(self,play_log,game_info):
+        instruct_info = f"""あなたはゲームのプレイ画面を分析し、ゲームの進行状況や可能な操作など、得られる全ての情報をJSON形式で整理して出力するAIです。
+"""
+        scene_info = f"""プレイ中のゲームのシーンの情報は以下のとおりです：
+<scene_information>
+{game_info}
+</scene_information>
+"""
+        log_info = f"""
+これまでのゲームプレイのログは以下のとおりです：
+<play_log>
+{play_log}
+</play_log>
+"""
+        res_info = f"""
+分析の注意事項は以下のとおりです：
+1. 現在のゲーム画面情報と最も近い、ゲームシーンの情報を見つけてください。それが現在のシーンとなります
+2. ゲームプレイログがある場合は、現在のシーンを判断するための参考にしてください
+3. 現在のシーンを基にプレイ画面を分析し、ゲームの進行状況、表示されている全ての選択可能な選択肢、操作コマンド等の情報をJSON形式で出力してください
+"""
+        if play_log:
+            prompt = instruct_info+scene_info+log_info+res_info
+        else:
+            prompt = instruct_info+scene_info+res_info
+        return prompt
+
+    def scene_prompt(self,play_log,game_info,ss_info):
+        instruct_info = f"""あなたは現在のシーンを分析し、ゲーム画面情報に修正・追加をおこなうAIです。
+ゲーム画面情報、これまでのゲームプレイログ、ゲームのシーン情報をもとに分析し、推定される現在のゲームシーン、修正・追加をおこなったゲーム画面情報を出力します。
+"""
+        scene_info = f"""プレイ中のゲームのシーン情報は以下のとおりです：
+<scene_information>
+{game_info}
+</scene_information>
+"""
+        log_info = f"""
+これまでのゲームプレイのログは以下のとおりです：
+<play_log>
+{play_log}
+</play_log>
+"""
+        dis_info = f"""
+現在のゲーム画面情報は以下の通りです：
+<display_information>
+{ss_info}
+</display_information>
+"""
+        res_info = f"""
+分析の注意事項は以下のとおりです：
+1. 現在のゲーム画面情報と最も近い、ゲームシーンの情報を見つけてください。それが現在のシーンとなります
+2. ゲームプレイログがある場合は、現在のシーンを判断するための参考にしてください
+3. 現在のゲーム画面情報は画像からAIが分析したものであり、ゲームシーンの情報を基に操作コマンドや注意事項の追加・修正が必要です
+
+出力は以下の形式に従ってください：
+<output_format>
+<current_scnene>
+[現在のシーン]
+</current_scene>
+<fixed_information>
+[修正・追加したゲームの画面情報]
+</fixed_information>
+</output_format>
+
+注意事項をよく確認し、与えられた全ての情報を加味して分析し、所定の形式で出力してください
+"""
+        if play_log:
+            prompt = instruct_info+scene_info+log_info+dis_info+res_info
+        else:
+            prompt = instruct_info+scene_info+dis_info+res_info
+        return prompt
+    
+

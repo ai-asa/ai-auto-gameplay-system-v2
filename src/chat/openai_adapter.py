@@ -82,16 +82,10 @@ class OpenaiAdapter:
             }
         ]
 
-    def select_game_buttons(self,ds_reason_text,op_cont_text) -> List[str]:
+    def select_game_buttons(self,op_cont_text) -> List[str]:
         tools = self.tools
-        prompt = f"""以下のゲームプレイの判断とコントローラー操作の指示から、必要なボタン操作をすべて選択してください。
-複数のボタンが指示されている場合（「と」や「、」で区切られている場合）は、それらを順番に押す必要があります。
-各ボタンに対して個別のコマンドを返してください。
-
-ゲームプレイの判断：
-<decision_gameplay>
-{ds_reason_text}
-</decision_gameplay>
+        prompt = f"""以下のコントローラー操作の指示から、操作を実行するボタンのリストを作成してください。
+複数のボタンが指示されている場合（記号などで区切られている場合）は、それらを押す順番に全てリストに格納してください。
 
 コントローラー操作の指示：
 <instruct_operation>
@@ -216,14 +210,45 @@ class OpenaiAdapter:
                     return None  # エラー時はNoneを返す
                 continue
 
-    def parse_response(self,text):
+    def fetch_openai_multimodal_with_json(self,base64_image,prompt,temperature=0):
+        system_prompt = {"role": "system", "content": prompt}
+        image_url = {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
+        for i in range(self.call_attempt_limit):
+            try:
+                response = self.client.chat.completions.create(
+                    model=self.openai_selected_model,
+                    messages=[
+                        system_prompt,
+                        {"role": "user", "content": [
+                            image_url
+                        ]}
+                    ],
+                    response_format={"type": "json_object"},
+                    temperature=temperature,
+                )
+                res_text = response.choices[0].message.content
+                return res_text
+            except Exception as error:
+                print(f"GPT呼び出し時にエラーが発生しました:{error}")
+                if i == self.call_attempt_limit - 1:
+                    return None  # エラー時はNoneを返す
+                continue
+
+    def parse_controller(self,text):
         description_reason = re.search(r'<description_reason>(.*?)</description_reason>', text, re.DOTALL)
         operation_controller = re.search(r'<operation_controller>(.*?)</operation_controller>', text, re.DOTALL)
         ds_reason_text = description_reason.group(1).strip() if description_reason else None
         op_cont_text = operation_controller.group(1).strip() if operation_controller else None
         # コントローラ操作情報の構造化
-        select_buttons = self.select_game_buttons(ds_reason_text,op_cont_text)
+        select_buttons = self.select_game_buttons(op_cont_text)
         return ds_reason_text,op_cont_text,select_buttons
+
+    def parse_scene(self,text):
+        current_scene = re.search(r'<current_scnene>(.*?)</current_scnene>', text, re.DOTALL)
+        fixed_information = re.search(r'<fixed_information>(.*?)</fixed_information>', text, re.DOTALL)
+        _ = current_scene.group(1).strip() if current_scene else None
+        info_text = fixed_information.group(1).strip() if fixed_information else None
+        return info_text
 
 if __name__ == "__main__":
     image_path = "C://Users//pirok//ai-auto-gameplay-system//datas//buttle.png"
