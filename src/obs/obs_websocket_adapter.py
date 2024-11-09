@@ -38,7 +38,7 @@ class OBSAdapter:
         with open(save_path + '.png', 'wb') as file:
             file.write(screenshot_data)
 
-    def get_b64_screenshot(self, source_name: str):
+    def get_b64_screenshot_non_headder(self, source_name: str):
         response = self.ws.get_source_screenshot(
             name=source_name,
             img_format='png',
@@ -48,6 +48,17 @@ class OBSAdapter:
         )
         # "data:image/png;base64," ヘッダーを削除
         image_data = re.sub(r'^data:image\/[a-zA-Z]+;base64,', '', response.image_data)
+        return image_data
+    
+    def get_b64_screenshot(self, source_name: str):
+        response = self.ws.get_source_screenshot(
+            name=source_name,
+            img_format='png',
+            width=1920,
+            height=1080,
+            quality=100
+        )
+        image_data = response.image_data
         return image_data
 
 if __name__ == "__main__":

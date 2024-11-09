@@ -6,6 +6,7 @@ import json
 class GamePlaySystem:
     def __init__(self,base_dir,game_title,save_name,play_target,game_info):
         from src.chat.openai_adapter import OpenaiAdapter
+        from src.chat.gemini_adapter import GeminiAdapter
         from src.prompt.get_prompt import GetPrompt
         from src.obs.obs_websocket_adapter import OBSAdapter
         from src.controller.switch_controller_adapter import SwitchControllerAdapter
@@ -14,6 +15,7 @@ class GamePlaySystem:
         self.oba = OBSAdapter(base_dir)
         self.gp = GetPrompt(base_dir)
         self.oa = OpenaiAdapter(base_dir)
+        self.ga = GeminiAdapter(base_dir)
         self.sc = SwitchControllerAdapter(base_dir)
         self.db = MongoAdapter(base_dir,game_title,save_name,play_target)
         self.wa = WebhookAdapter(base_dir)
@@ -56,7 +58,7 @@ class GamePlaySystem:
 
     # ScreenShot画像情報を取得する
     def fetch_ss_text(self):
-        b64_image = self.oba.get_b64_screenshot(self.source_name)
+        b64_image = self.oba.get_b64_screenshot_non_headder(self.source_name)
         # プロンプトを取得する
         prompt = self.gp.ss_prompt(self.play_log_text,self.game_info)
         response = self.oa.fetch_openai_multimodal_with_json(b64_image,prompt)
@@ -129,5 +131,48 @@ class GamePlaySystem:
             #     print("loop_gameplay実行中に例外が発生しました: %s", e)
             time.sleep(5)
 
+    def fetch_gameplay_cmd(self,advice,b64_image):
+        # prompt = self.gp.gameplay_prompt(self.game_title,self.play_target,advice,self.play_log_text,self.game_info,self.bu)
+        # print("prompt:\n",prompt)
+        prompt = "画像からわかることをJSONスキームで出力してください"
+        # Gemini処理
+        res = self.ga.fetch_gemini_multimodal_json(b64_image,prompt)
+        # ゲームプレイ判断の取得
+        ai_gameplay = res['gameplay_decision_explanation']
+        # 操作判断の取得
+        op = res['operation_methods']['operation_method']
+        # コマンドの取得
+        cmds = res['operation_commands']
+        self.bu = str(cmds)
+        # ログの更新
+        self._logging_gameplay_gemini(ai_gameplay,op)
+        return ai_gameplay,cmds
+
+    def _logging_gameplay_gemini(self,rs,op):
+        # logのDB保存
+        log_text = self.db.update_log(rs,op,self.bu)
+        # イベント送信
+        self._send_webhook()
+        # logの更新
+        self.play_log_list.append(log_text)
+        self.play_log_list = self.play_log_list[-self.log_limit:]
+        if len(self.play_log_list) > 1:
+            self.play_log_text = "¥n".join(self.play_log_list)
+    
+    def gemini_loop_gameplay(self,exit_event,ad_queue):
+        while not exit_event.is_set():
+            advice = self.get_advice(ad_queue)
+            print("advice: ",advice)
+            # SSの取得
+            b64_image = self.oba.get_b64_screenshot_non_headder(self.source_name)
+            # ゲームプレイ判断＆操作の取得
+            ai_gameplay,cmd = self.fetch_gameplay_cmd(advice,b64_image)
+            print("ai_gameplay:\n",ai_gameplay)
+            print("command:\n",cmd)
+            # コマンド実行
+            self.exec_operate(cmd)
+            time.sleep(5)
+
     def agent_gameplay(self):
         pass
+

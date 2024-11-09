@@ -179,7 +179,7 @@ def main():
     
     # Run the game system
     try:
-        gs.loop_gameplay(exit_event, queue_advice)
+        gs.gemini_loop_gameplay(exit_event, queue_advice)
     except KeyboardInterrupt:
         print("\nShutting down gracefully...")
         exit_event.set()
