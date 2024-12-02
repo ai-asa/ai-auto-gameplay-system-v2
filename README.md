@@ -24,7 +24,7 @@
 
 1. リポジトリのクローン
 ```bash
-git clone [repository-url]
+git clone https://github.com/ai-asa/ai-auto-gameplay-system-v2.git
 cd ai-auto-gameplay-system
 ```
 
