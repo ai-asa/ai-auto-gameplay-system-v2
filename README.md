@@ -1,6 +1,6 @@
 # AI Auto Gameplay System
 
-AIを活用してNintendo Switchのゲームを自動プレイするためのフレームワークです。OBSで取得したゲーム画面をAIが解析し、適切な操作判断を行い、Arduino互換機を介してNintendo Switchを自動操作します。
+AIを活用してNintendo Switchのゲームを自動プレイするためのフレームワークです。OBSで取得したゲーム画面をAIが解析し、適切な操作判断を行い、Arduino互換機を介してNintendo Switchを自動操作します。  
 https://www.youtube.com/watch?v=dRsVVPaOOVk
 
 ### 主な機能
